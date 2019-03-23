@@ -2,14 +2,11 @@ const http = require('http');
 const uuidv4 = require('uuid/v4');
 const shell = require('shelljs');
 const formidable = require('formidable');
-const ifIsImage = require('if-is-image');
 const readChunk = require('read-chunk');
 const fileType = require('file-type');
 var cmds = require('./snap-processor-cmds.js');
 
 
-//Clean Up
-shell.rm('-f', './upload/*');
 
 // variable to assure only one upload request happens
 var reqhappened = false;
@@ -76,15 +73,64 @@ http.createServer(function (req, res) {
 
                     //frontend needs to know if upload was successful and receive the token
                     var successResponse = { success: "", token: ""};
+                    var allowedExtensions = ['jpg', 'jpeg', 'bmp', 'png'];
 
                     const buffer = readChunk.sync(file.path, 0, fileType.minimumBytes);
 
-                    console.log(fileType(buffer));
+                    var uploadedFileType = fileType(buffer).ext;
+                    console.log(uploadedFileType);
 
-                    res.end("done for now");
+                    if (!allowedExtensions.includes(uploadedFileType)){
+
+                      // if not image, success is false, no token, end process
+											successResponse.success = "false";
+											res.end(JSON.stringify(successResponse));
+											process.exit();
+
+                    } else {
+
+                      // if file is valid, success is true and provide token
+  										successResponse.success = "true";
+  										successResponse.token = genToken;
+  										res.end(JSON.stringify(successResponse));
+
+                      // resize the image with shell command
+                      shell.exec(cmds.shell_cmds.createResizeCmd(file.path), function(code, stdout, stderr) {
+                              // if code aint 0 there's an error
+                              if (code) {
+                                console.log(stderr);
+                               process.exit();
+                             }
+                             // upload resized (called source for some reason) image to ipfs
+         										cmds.ipfs_cmds.ipfsUpload("./snap/resizedImg", "ipfsAddSource");
+
+                          // overlay dtube logo on image with shell command
+                          shell.exec(cmds.shell_cmds.createOverlayCmd("./snap/resizedImg"), function(code, stdout, stderr){
+                                // if code aint 0 there's an error
+                                if (code) {
+                                  console.log(stderr);
+                                 process.exit();
+                               }
+                              // upload overlayed image to ipfs
+                            cmds.ipfs_cmds.ipfsUpload("./snap/overlayedImg", "ipfsAddOverlay");
+
+                            // check if finished and exit if done.
+                            cmds.checkIfFinished();
+
+                          });
+
+                      });
+
+                    }
 
               });
 
+
+              form.on('error', function(err) {
+  							console.error('Error', err)
+  				      throw err;
+  							process.exit();
+  						});
 
 
             }

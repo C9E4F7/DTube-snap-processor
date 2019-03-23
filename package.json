@@ -11,5 +11,13 @@
     "url": "https://gitlab.nannal.com/dtube/dtube-snap-processor"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "file-type": "^10.9.0",
+    "formidable": "^1.2.1",
+    "ipfs-http-client": "^30.1.0",
+    "read-chunk": "^3.1.0",
+    "shelljs": "^0.8.3",
+    "uuid": "^3.3.2"
+  }
 }

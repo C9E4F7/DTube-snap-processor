@@ -1,6 +1,4 @@
 FROM node:latest
-LABEL "project.home"="https://gitlab.nannal.com/dtube/dtube-snap-processor"
-
 
 RUN apt-get update -y
 RUN apt-get install imagemagick  libjansson4  -y
