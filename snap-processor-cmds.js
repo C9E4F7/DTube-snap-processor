@@ -36,7 +36,7 @@ var cmds = {
             console.log(err);
               process.exit();
             }
-              // updating relevant encoder response fields
+              // updating relevant process response fields
               cmds.setObjPropToValue(cmds.processResponse, prop+".progress", "100.00%");
               cmds.setObjPropToValue(cmds.processResponse, prop+".lastTimeProgress", Date());
               cmds.setObjPropToValue(cmds.processResponse, prop+".step", "success");
