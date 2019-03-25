@@ -23,7 +23,7 @@ var cmds = {
 
   ipfs_cmds: {
 
-    // uploads file to ipfs, second parameter is the property to update within encoder response
+    // uploads file to ipfs, second parameter is the property to update within process response
     ipfsUpload: (filePath, prop) => {
       //Connceting to our http api
       const ipfs = ipfsAPI(ipfsIp, ipfsPort, {protocol: ipfsProtocol})
