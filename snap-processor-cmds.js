@@ -9,15 +9,15 @@ var ipfsProtocol = process.env.IPFSPROTOCOL || 'http';
 var cmds = {
 
   shell_cmds: {
-        // make sure all files and directories exist where they should
-      createResizeCmd: (filePath) => {
-          return `convert ` + filePath + ` -resize 640x360 -gravity Center -crop 640x360 ./snap/resizedImg`
-      },
+    // make sure all files and directories exist where they should
+    createResizeCmd: (filePath) => {
+      return `convert ` + filePath + ` -resize 640x360 -gravity Center -crop 640x360 ./snap/resizedImg`
+    },
 
-      // make sure all files and directories exist where they should
-      createOverlayCmd: (filePath) => {
-        return `composite -gravity NorthEast overlay.png ` + filePath +` ./snap/overlayedImg`
-      }
+    // make sure all files and directories exist where they should
+    createOverlayCmd: (filePath) => {
+      return `composite -gravity NorthEast overlay.png ` + filePath +` ./snap/overlayedImg`
+    }
 
   },
 
@@ -32,18 +32,18 @@ var cmds = {
 
       ipfs.add(testBuffer, function (err, file) {
 
-          if (err) {
-            console.log(err);
-              process.exit();
-            }
-              // updating relevant process response fields
-              cmds.setObjPropToValue(cmds.processResponse, prop+".progress", "100.00%");
-              cmds.setObjPropToValue(cmds.processResponse, prop+".lastTimeProgress", Date());
-              cmds.setObjPropToValue(cmds.processResponse, prop+".step", "success");
-              cmds.setObjPropToValue(cmds.processResponse, prop+".hash", file[0].hash);
-              cmds.setObjPropToValue(cmds.processResponse, prop+".fileSize", file[0].size);
+        if (err) {
+          console.log(err);
+          process.exit();
+        }
+        // updating relevant process response fields
+        cmds.setObjPropToValue(cmds.processResponse, prop+".progress", "100.00%");
+        cmds.setObjPropToValue(cmds.processResponse, prop+".lastTimeProgress", Date());
+        cmds.setObjPropToValue(cmds.processResponse, prop+".step", "success");
+        cmds.setObjPropToValue(cmds.processResponse, prop+".hash", file[0].hash);
+        cmds.setObjPropToValue(cmds.processResponse, prop+".fileSize", file[0].size);
 
-          });
+      });
 
     }
   },
@@ -53,7 +53,7 @@ var cmds = {
     var i;
     path = path.split(/(?:\.|\[|\])+/);
     for (i = 0; i < path.length - 1; i++)
-        obj = obj[path[i]];
+      obj = obj[path[i]];
 
     obj[path[i]] = value;
   },
@@ -75,27 +75,27 @@ var cmds = {
   },
 
   processResponse: {
-          "ipfsAddSource": {
-            "progress": "0.00%",
-            "encodeSize": "source",
-            "lastTimeProgress": null,
-            "errorMessage": null,
-            "step": "Started",
-            "positionInQueue": null,
-            "hash": null,
-            "fileSize": null
-          },
-          "ipfsAddOverlay": {
-            "progress": "Waiting in queue...",
-            "encodeSize": "source",
-            "lastTimeProgress": null,
-            "errorMessage": null,
-            "step": "Waiting",
-            "positionInQueue": 1,
-            "hash": null,
-            "fileSize": null
-          }
-        }
+    "ipfsAddSource": {
+      "progress": "0.00%",
+      "encodeSize": "source",
+      "lastTimeProgress": null,
+      "errorMessage": null,
+      "step": "Started",
+      "positionInQueue": null,
+      "hash": null,
+      "fileSize": null
+    },
+    "ipfsAddOverlay": {
+      "progress": "Waiting in queue...",
+      "encodeSize": "source",
+      "lastTimeProgress": null,
+      "errorMessage": null,
+      "step": "Waiting",
+      "positionInQueue": 1,
+      "hash": null,
+      "fileSize": null
+    }
+  }
 
 }
 
