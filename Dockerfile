@@ -3,7 +3,7 @@ FROM node:latest
 RUN apt-get update -y
 RUN apt-get install imagemagick  libjansson4  -y
 
-ADD . /DtubeSnapProcessor
+COPY . /DtubeSnapProcessor
 WORKDIR /DtubeSnapProcessor
 RUN npm install
 
@@ -14,4 +14,4 @@ ENV IPFSIP  "127.0.0.1"
 ENV IPFSPORT  "5001"
 ENV IPFSPROTOCOL "http"
 
-CMD ["npm", "start"]
+CMD ["node", "snap-processor"]

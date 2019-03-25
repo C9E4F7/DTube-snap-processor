@@ -6,7 +6,7 @@ const readChunk = require('read-chunk');
 const fileType = require('file-type');
 var cmds = require('./snap-processor-cmds.js');
 
-
+corsVar = process.env.CORSVAR || 'https://dtube.nannal.com';
 
 // variable to assure only one upload request happens
 var reqhappened = false;
@@ -22,11 +22,11 @@ http.createServer(function (req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Origin, Authorization, Accept');
   res.setHeader('Access-Control-Allow-Headers', 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Content-Range,Range');
   res.setHeader('Access-Control-Allow-Methods','GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Origin', 'https://d.tube');
+	res.setHeader('access-control-allow-origin', corsVar);
   res.setHeader('Access-Control-Max-Age', '1728000');
   res.setHeader('Connection', 'keep-alive');
-  res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  // res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  // res.setHeader('Content-Type', 'text/plain; charset=utf-8');
 
   if (req.url == '/getStatus') {
 		res.statusCode = 200;
