@@ -48,7 +48,11 @@ http.createServer(function (req, res) {
     res.statusCode = 200;
     res.end('{"version":"0.7.5","currentWaitingInQueue":{"audioCpuToEncode":0,"videoGpuToEncode":0,"audioVideoCpuToEncode":0,"spriteToCreate":0,"ipfsToAdd":0}}');
   };
+<<<<<<< HEAD
 >>>>>>> 4234e7a... tabs to spaces
+=======
+>>>>>>> 4234e7a11f59e442911f705f8fa1ada21100ffc8
+>>>>>>> 6d00387... merge fix 2
 
 	// sending progress to user
 	if (req.url.match(/\/getProgressByToken.*/)) {
@@ -97,7 +101,11 @@ http.createServer(function (req, res) {
       form.on('fileBegin', function (name, file){
         file.path = "./upload/" + genToken;
       });
+<<<<<<< HEAD
 >>>>>>> 4234e7a... tabs to spaces
+=======
+>>>>>>> 4234e7a11f59e442911f705f8fa1ada21100ffc8
+>>>>>>> 6d00387... merge fix 2
 
 	form.on('file', function (name, file) {
 
@@ -122,7 +130,11 @@ http.createServer(function (req, res) {
           successResponse.success = "false";
           res.end(JSON.stringify(successResponse));
           process.exit();
+<<<<<<< HEAD
 >>>>>>> 4234e7a... tabs to spaces
+=======
+>>>>>>> 4234e7a11f59e442911f705f8fa1ada21100ffc8
+>>>>>>> 6d00387... merge fix 2
 
 	} else {
 
@@ -156,7 +168,11 @@ http.createServer(function (req, res) {
             }
             // upload resized (called source for some reason) image to ipfs
             cmds.ipfs_cmds.ipfsUpload("./snap/resizedImg", "ipfsAddSource");
+<<<<<<< HEAD
 >>>>>>> 4234e7a... tabs to spaces
+=======
+>>>>>>> 4234e7a11f59e442911f705f8fa1ada21100ffc8
+>>>>>>> 6d00387... merge fix 2
 
 	// overlay dtube logo on image with shell command
 	shell.exec(cmds.shell_cmds.createOverlayCmd("./snap/resizedImg"), function(code, stdout, stderr){
@@ -189,7 +205,11 @@ http.createServer(function (req, res) {
         console.error('Error', err)
         process.exit();
       });
+<<<<<<< HEAD
 >>>>>>> 4234e7a... tabs to spaces
+=======
+>>>>>>> 4234e7a11f59e442911f705f8fa1ada21100ffc8
+>>>>>>> 6d00387... merge fix 2
 
 	}
 
