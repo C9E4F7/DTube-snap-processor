@@ -138,7 +138,6 @@ http.createServer(function (req, res) {
 
    } else {
      res.end("There's nothing here for you");
-     process.exit()
    }
 
 }).listen(5000, ()=> {
