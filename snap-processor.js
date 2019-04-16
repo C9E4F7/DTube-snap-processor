@@ -6,7 +6,7 @@ const readChunk = require('read-chunk');
 const fileType = require('file-type');
 var cmds = require('./snap-processor-cmds.js');
 
-
+corsvar = process.env.CORSVAR || "https://d.tube"
 
 // variable to assure only one upload request happens
 var reqhappened = false;
@@ -22,7 +22,7 @@ http.createServer(function (req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Origin, Authorization, Accept');
   res.setHeader('Access-Control-Allow-Headers', 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Content-Range,Range');
   res.setHeader('Access-Control-Allow-Methods','GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Origin', 'https://d.tube');
+  res.setHeader('Access-Control-Allow-Origin', corsvar);
   res.setHeader('Access-Control-Max-Age', '1728000');
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -43,102 +43,101 @@ http.createServer(function (req, res) {
 
    if (req.url == '/uploadImage' && !reqhappened) {
 
-         if (req.method === 'OPTIONS'){
-             res.statusCode = 204;
-             res.end();
+    if (req.method === 'OPTIONS'){
+      res.statusCode = 204;
+      res.end();
 
+
+      } else {
+
+        res.statusCode = 200;
+
+        reqhappened = true;
+        var form = new formidable.IncomingForm();
+
+        //Sane Form options
+				form.maxFields = 1
+			  form.encoding = 'utf-8';
+				form.maxFileSize = '10240000';
+
+        form.parse(req, function (err, fields, files) {
+				  });
+
+        // file is moved to upload folder and renamed to uuid
+				form.on('fileBegin', function (name, file){
+		        file.path = "./upload/" + genToken;
+		    	});
+
+
+        form.on('file', function (name, file) {
+
+          //frontend needs to know if upload was successful and receive the token
+          var successResponse = { success: "", token: ""};
+          var allowedExtensions = ['jpg', 'jpeg', 'bmp', 'png'];
+
+          const buffer = readChunk.sync(file.path, 0, fileType.minimumBytes);
+
+          var uploadedFileType = fileType(buffer).ext;
+          console.log(uploadedFileType);
+
+          if (!allowedExtensions.includes(uploadedFileType)){
+
+            // if not image, success is false, no token, end process
+						successResponse.success = "false";
+						res.end(JSON.stringify(successResponse));
+						process.exit();
 
           } else {
 
-             res.statusCode = 200;
+            // if file is valid, success is true and provide token
+						successResponse.success = "true";
+						successResponse.token = genToken;
+						res.end(JSON.stringify(successResponse));
 
-             reqhappened = true;
-             var form = new formidable.IncomingForm();
+            // resize the image with shell command
+            shell.exec(cmds.shell_cmds.createResizeCmd(file.path), function(code, stdout, stderr) {
+              // if code aint 0 there's an error
+              if (code) {
+                console.log(stderr);
+               process.exit();
+             }
+             // upload resized (called source for some reason) image to ipfs
+						 cmds.ipfs_cmds.ipfsUpload("./snap/resizedImg", "ipfsAddSource");
 
-               //Sane Form options
-     				  form.maxFields = 1
-     					form.encoding = 'utf-8';
-     					form.maxFileSize = '1024000';
+             // overlay dtube logo on image with shell command
+             shell.exec(cmds.shell_cmds.createOverlayCmd("./snap/resizedImg"), function(code, stdout, stderr){
+               // if code aint 0 there's an error
+               if (code) {
+                 console.log(stderr);
+                 process.exit();
+                }
+                // upload overlayed image to ipfs
+               cmds.ipfs_cmds.ipfsUpload("./snap/overlayedImg", "ipfsAddOverlay");
 
-              form.parse(req, function (err, fields, files) {
-    						});
-
-              // file is moved to upload folder and renamed to uuid
-    					form.on('fileBegin', function (name, file){
-    			        file.path = "./upload/" + genToken;
-    			    	});
-
-
-              form.on('file', function (name, file) {
-
-                    //frontend needs to know if upload was successful and receive the token
-                    var successResponse = { success: "", token: ""};
-                    var allowedExtensions = ['jpg', 'jpeg', 'bmp', 'png'];
-
-                    const buffer = readChunk.sync(file.path, 0, fileType.minimumBytes);
-
-                    var uploadedFileType = fileType(buffer).ext;
-                    console.log(uploadedFileType);
-
-                    if (!allowedExtensions.includes(uploadedFileType)){
-
-                      // if not image, success is false, no token, end process
-											successResponse.success = "false";
-											res.end(JSON.stringify(successResponse));
-											process.exit();
-
-                    } else {
-
-                      // if file is valid, success is true and provide token
-  										successResponse.success = "true";
-  										successResponse.token = genToken;
-  										res.end(JSON.stringify(successResponse));
-
-                      // resize the image with shell command
-                      shell.exec(cmds.shell_cmds.createResizeCmd(file.path), function(code, stdout, stderr) {
-                              // if code aint 0 there's an error
-                              if (code) {
-                                console.log(stderr);
-                               process.exit();
-                             }
-                             // upload resized (called source for some reason) image to ipfs
-         										cmds.ipfs_cmds.ipfsUpload("./snap/resizedImg", "ipfsAddSource");
-
-                          // overlay dtube logo on image with shell command
-                          shell.exec(cmds.shell_cmds.createOverlayCmd("./snap/resizedImg"), function(code, stdout, stderr){
-                                // if code aint 0 there's an error
-                                if (code) {
-                                  console.log(stderr);
-                                 process.exit();
-                               }
-                              // upload overlayed image to ipfs
-                            cmds.ipfs_cmds.ipfsUpload("./snap/overlayedImg", "ipfsAddOverlay");
-
-                            // check if finished and exit if done.
-                            cmds.checkIfFinished();
-
-                          });
-
-                      });
-
-                    }
+               // check if finished and exit if done.
+               cmds.checkIfFinished();
 
               });
 
+            });
 
-              form.on('error', function(err) {
-  							console.error('Error', err)
-  				      throw err;
-  							process.exit();
-  						});
+          }
+
+        });
 
 
-            }
+        form.on('error', function(err) {
+					console.error('Error', err)
+		      throw err;
+					process.exit();
+				});
+
+
+      }
 
 
    } else {
      res.end("There's nothing here for you");
-     process.exit();
    }
 
 }).listen(5000, ()=> {
